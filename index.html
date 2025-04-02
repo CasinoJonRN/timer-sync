@@ -298,13 +298,14 @@
           if (remaining <= 0) {
             clearInterval(timers[id].interval);
             updateDisplay(id);
-            renderTimers();
+            renderTimers(); // Re-sort after a timer hits zero
           } else {
             document.getElementById(`timer${id}`).innerText = formatTime(remaining);
           }
         }, 1000);
 
         saveTimer(id);
+        renderTimers(); // Re-sort after starting a timer
       }
 
       function pauseTimer(id) {
@@ -314,7 +315,7 @@
           timers[id].paused = true;
           timers[id].pauseTime = Date.now();
           saveTimer(id);
-          renderTimers();
+          renderTimers(); // Re-sort after pausing
         }
       }
 
@@ -330,7 +331,7 @@
             timerElement.classList.add('no-timer');
           }
           saveTimer(id);
-          renderTimers();
+          renderTimers(); // Re-sort after stopping
         }
       }
 
@@ -343,13 +344,14 @@
         }
         timerList.innerHTML = '';
 
+        // Sort timers by remaining time, handling null for inactive timers
         const sortedTimers = timerData.slice().sort((a, b) => {
           const timeA = getRemainingTime(a.id);
           const timeB = getRemainingTime(b.id);
           if (timeA === null && timeB === null) return 0;
           if (timeA === null) return 1;
           if (timeB === null) return -1;
-          return timeA - timeB;
+          return timeA - timeB; // Ascending order (shortest time first)
         });
 
         sortedTimers.forEach(timer => {
@@ -363,7 +365,7 @@
             <button onclick="stopTimer(${timer.id})">Stop</button>
           `;
           timerList.appendChild(li);
-          updateDisplay(timer.id);
+          updateDisplay(timer.id); // Update display after rendering
         });
       }
 
