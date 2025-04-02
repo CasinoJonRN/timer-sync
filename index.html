@@ -1,9 +1,9 @@
 <html>
   <head>
     <title>Countdown Timers</title>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+    <!-- Firebase SDK (Compat Versions) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
       body {
         font-family: 'roboto', sans-serif;
@@ -204,8 +204,7 @@
           }
           renderTimers();
         });
-        // Call renderTimers immediately to show the list
-        renderTimers();
+        renderTimers(); // Initial render
       }
 
       function saveTimer(id) {
