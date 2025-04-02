@@ -1,0 +1,387 @@
+<html>
+  <head>
+    <title>Countdown Timers</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+    <style>
+      body {
+        font-family: 'roboto', sans-serif;
+        background-color: #1e1e1e;
+        color: #e0e0e0;
+        position: relative;
+      }
+      h1 {
+        text-align: center;
+        color: #ffffff;
+        margin: 20px 0;
+        font-size: 2em;
+      }
+      #openCompleted {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 8px 15px;
+        background-color: #0288d1;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #openCompleted:hover {
+        background-color: #039be5;
+      }
+      ul {
+        padding: 0;
+      }
+      li {
+        list-style: none;
+        background-color: #2d2d2d;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px 0 #00000040;
+      }
+      p {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #ffffff;
+      }
+      a {
+        color: #4dabf7;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+        color: #80c0ff;
+      }
+      input {
+        padding: 5px;
+        border-radius: 5px;
+        border: 1px solid #555;
+        width: 50px;
+        background-color: #333;
+        color: #e0e0e0;
+      }
+      input::placeholder {
+        color: #888;
+      }
+      span {
+        font-size: 1.5em;
+        font-family: 'courier new', monospace;
+        font-weight: bold;
+        padding: 5px;
+        background-color: #383838;
+        border: 1px solid #555;
+        color: #00e676;
+      }
+      button {
+        padding: 5px 10px;
+        background-color: #4caf50;
+        color: #ffffff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-right: 5px;
+      }
+      button:hover {
+        background-color: #66bb6a;
+      }
+      .blinking {
+        font-weight: bold;
+        color: #ff5252;
+        animation: blink 1s infinite;
+      }
+      .no-timer {
+        color: #ff0000;
+      }
+      @keyframes blink {
+        0% { opacity: 1; }
+        50% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <button id="openCompleted">Open Completed</button>
+    <h1>Jon's Sweeps Countdown Timers</h1>
+    <ul id="timerList"></ul>
+    <script>
+      // Replace this with your Firebase config from the Firebase Console
+      const firebaseConfig = {
+        apiKey: "AIzaSyBZWgezBDSH8djT1wXB0QeyGlYwkNe--9c",
+        authDomain: "timersync-f9c04.firebaseapp.com",
+        databaseURL: "https://timersync-f9c04-default-rtdb.firebaseio.com",
+        projectId: "timersync-f9c04",
+        storageBucket: "timersync-f9c04.firebasestorage.app",
+        messagingSenderId: "152212557916",
+        appId: "1:152212557916:web:acbf91e5f82e961428d699"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+      const timersRef = db.ref('timers');
+
+      const timerData = [
+        { id: 1, name: "Baba Casino", url: "https://play.babacasino.com/#/Baba" },
+        { id: 2, name: "Casino Click", url: "https://casino.click/" },
+        { id: 3, name: "Chanced", url: "https://chanced.com/?page=bonus&tab=bank" },
+        { id: 4, name: "ChipNWin", url: "https://chipnwin.com/" },
+        { id: 5, name: "Chumba", url: "https://lobby.chumbacasino.com/" },
+        { id: 6, name: "ClubsPoker", url: "https://play.clubspoker.com/d/?casino/games" },
+        { id: 7, name: "Crown Coins Casino", url: "https://crowncoinscasino.com/" },
+        { id: 8, name: "Dara Casino", url: "https://daracasino.com/#/lobby" },
+        { id: 9, name: "DingDingDing", url: "https://dingdingding.com/lobby/" },
+        { id: 10, name: "DingDingDing Pet Farm", url: "https://dingdingding.com/lobby/games/pet_farm" },
+        { id: 11, name: "DingDingDing Store", url: "https://dingdingding.com/lobby/bonus/" },
+        { id: 12, name: "FortuneCoins", url: "https://www.fortunecoins.com/lobby" },
+        { id: 13, name: "GlobalPoker", url: "https://play.globalpoker.com/" },
+        { id: 14, name: "Gold Treasure", url: "https://goldtreasurecasino.com/lobby" },
+        { id: 15, name: "Golden Hearts Games", url: "https://www.goldenheartsgames.com/buy-coins/daily-bonus" },
+        { id: 16, name: "High 5 Casino", url: "https://fun.high5casino.com/gc/?originId=2&accountTypeId=1" },
+        { id: 17, name: "High 5 Casino Bonus", url: "https://fun.high5casino.com/gc/?originId=2&accountTypeId=1" },
+        { id: 18, name: "HelloMillions", url: "https://www.hellomillions.com/gold-coins" },
+        { id: 19, name: "iCasino", url: "https://app.icasino.com/" },
+        { id: 20, name: "Jackpota", url: "https://www.jackpota.com/gold-coins" },
+        { id: 21, name: "Jefebet", url: "https://www.jefebet.com/" },
+        { id: 22, name: "Kickr", url: "https://kickr.com/casino" },
+        { id: 23, name: "LegendZ", url: "https://www.legendz.com/en-US/casino/discover?menu=me" },
+        { id: 24, name: "Luckybird", url: "https://luckybird.io/" },
+        { id: 25, name: "LuckyHands", url: "https://luckyhands.com/" },
+        { id: 26, name: "LuckyLand", url: "https://luckylandslots.com/" },
+        { id: 27, name: "McLuck", url: "https://www.mcluck.com/gold-coins" },
+        { id: 28, name: "MegaBonanza", url: "https://www.megabonanza.com/gold-coins" },
+        { id: 29, name: "Modo", url: "https://modo.us/lobby" },
+        { id: 30, name: "MoonSpin", url: "https://moonspin.us/home" },
+        { id: 31, name: "Moozi", url: "https://moozi.com/lobby" },
+        { id: 32, name: "MyPrize", url: "https://myprize.us/" },
+        { id: 33, name: "PlayFame", url: "https://www.playfame.com/gold-coins" },
+        { id: 34, name: "Pulsz", url: "https://www.pulsz.com/home" },
+        { id: 35, name: "PulszBingo", url: "https://www.pulszbingo.com/home" },
+        { id: 36, name: "Punt", url: "https://punt.com/?page=bonus&tab=bank" },
+        { id: 37, name: "RealPrize", url: "https://realprize.com/#!login" },
+        { id: 38, name: "Rolling Riches", url: "https://www.rollingriches.com/get-coins" },
+        { id: 39, name: "RubySweeps", url: "https://play.rubysweeps.com/" },
+        { id: 40, name: "SidePot", url: "https://sidepot.us/home" },
+        { id: 41, name: "Smiles Casino", url: "https://smilescasino.com/" },
+        { id: 42, name: "SpinBlitz", url: "https://www.spinblitz.com/gold-coins" },
+        { id: 43, name: "Spinfinite", url: "https://www.spinfinite.com/promotions" },
+        { id: 44, name: "SpinPals", url: "https://www.spinpals.com/user/store" },
+        { id: 45, name: "SpinPals Wheel", url: "https://www.spinpals.com/spin-wheel" },
+        { id: 46, name: "SpinSorcery", url: "https://game.spinsorcery.net/lobby" },
+        { id: 47, name: "SpinQuest", url: "https://spinquest.com/promotions" },
+        { id: 48, name: "Sportzino", url: "https://sportzino.com/lobby" },
+        { id: 49, name: "SportsMillions", url: "https://www.sportsmillions.com/gold-coins" },
+        { id: 50, name: "Spree", url: "https://spree.com/slots" },
+        { id: 51, name: "StakeUS", url: "https://stake.us/?tab=dailyBonus¤cy=btc&modal=wallet" },
+        { id: 52, name: "SweepSlots", url: "https://sweepslots.com/" },
+        { id: 53, name: "The Money Factory", url: "https://www.themoneyfactory.com/" },
+        { id: 54, name: "Vegas Coins", url: "https://www.vegascoins.com/" },
+        { id: 55, name: "Vivaro", url: "https://www.vivaro.us/en-us/frame/daily-bonus" },
+        { id: 56, name: "WowVegas", url: "https://www.wowvegas.com/promotions/daily-coin-reward" },
+        { id: 57, name: "YayCasinoCOM", url: "https://www.yaycasino.com/lobby" },
+        { id: 58, name: "YayCasinoUS", url: "https://www.yaycasino.us/lobby" },
+        { id: 59, name: "Zoot", url: "https://getzoot.us/" },
+        { id: 60, name: "Zula", url: "https://www.zulacasino.com/lobby" }
+      ];
+
+      let timers = {};
+
+      function loadTimers() {
+        timersRef.on('value', (snapshot) => {
+          const newTimers = snapshot.val() || {};
+          // Clear existing intervals to avoid duplicates
+          for (let id in timers) {
+            if (timers[id].interval) clearInterval(timers[id].interval);
+          }
+          timers = newTimers;
+          for (let id in timers) {
+            const elapsed = Math.floor((Date.now() - timers[id].startTime) / 1000);
+            const remaining = timers[id].duration - elapsed;
+            if (!timers[id].completed && remaining > 0 && !timers[id].paused) {
+              startTimer(id, true);
+            }
+          }
+          renderTimers();
+        });
+      }
+
+      function saveTimer(id) {
+        if (timers[id]) {
+          timersRef.child(id).set({
+            duration: timers[id].duration,
+            startTime: timers[id].startTime,
+            paused: timers[id].paused,
+            pauseTime: timers[id].pauseTime || 0,
+            completed: timers[id].completed || false
+          });
+        } else {
+          timersRef.child(id).remove();
+        }
+      }
+
+      function formatTime(seconds) {
+        if (seconds <= 0) return "00:00:00";
+        let h = Math.floor(seconds / 3600);
+        let m = Math.floor((seconds % 3600) / 60);
+        let s = seconds % 60;
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      function getRemainingTime(id) {
+        if (!timers[id]) return null;
+        if (timers[id].completed) return 0;
+        if (timers[id].paused) {
+          return timers[id].duration - Math.floor((timers[id].pauseTime - timers[id].startTime) / 1000);
+        }
+        return timers[id].duration - Math.floor((Date.now() - timers[id].startTime) / 1000);
+      }
+
+      function updateDisplay(id) {
+        const timerElement = document.getElementById(`timer${id}`);
+        if (!timerElement) return;
+
+        const remaining = getRemainingTime(id);
+
+        if (timers[id] && timers[id].completed) {
+          timerElement.innerText = "00:00:00";
+          timerElement.classList.add('blinking');
+          timerElement.classList.remove('no-timer');
+        } else if (remaining === null) {
+          timerElement.innerText = "NO TIMER";
+          timerElement.classList.remove('blinking');
+          timerElement.classList.add('no-timer');
+        } else if (remaining <= 0) {
+          timerElement.innerText = "00:00:00";
+          timerElement.classList.add('blinking');
+          timerElement.classList.remove('no-timer');
+          if (timers[id]) {
+            timers[id].completed = true;
+            delete timers[id].interval;
+            saveTimer(id);
+          }
+        } else {
+          timerElement.innerText = formatTime(remaining);
+          timerElement.classList.remove('blinking');
+          timerElement.classList.remove('no-timer');
+        }
+      }
+
+      function startTimer(id, fromSaved = false) {
+        let duration;
+        if (!fromSaved) {
+          let input = document.getElementById(`input${id}`).value;
+          duration = Math.floor(parseFloat(input) * 3600);
+          if (isNaN(duration) || duration <= 0) return;
+
+          timers[id] = {
+            duration: duration,
+            startTime: Date.now(),
+            paused: false,
+            pauseTime: 0,
+            completed: false
+          };
+        } else if (timers[id].paused) {
+          const pausedDuration = Math.floor((timers[id].pauseTime - timers[id].startTime) / 1000);
+          timers[id].startTime = Date.now() - pausedDuration * 1000;
+          timers[id].paused = false;
+          timers[id].pauseTime = 0;
+        }
+
+        if (timers[id].interval) clearInterval(timers[id].interval);
+
+        updateDisplay(id);
+        timers[id].interval = setInterval(() => {
+          const remaining = getRemainingTime(id);
+          if (remaining <= 0) {
+            clearInterval(timers[id].interval);
+            updateDisplay(id);
+            renderTimers();
+          } else {
+            document.getElementById(`timer${id}`).innerText = formatTime(remaining);
+          }
+        }, 1000);
+
+        saveTimer(id);
+      }
+
+      function pauseTimer(id) {
+        if (timers[id] && !timers[id].paused && timers[id].interval) {
+          clearInterval(timers[id].interval);
+          delete timers[id].interval;
+          timers[id].paused = true;
+          timers[id].pauseTime = Date.now();
+          saveTimer(id);
+          renderTimers();
+        }
+      }
+
+      function stopTimer(id) {
+        if (timers[id]) {
+          clearInterval(timers[id].interval);
+          delete timers[id].interval;
+          delete timers[id];
+          const timerElement = document.getElementById(`timer${id}`);
+          if (timerElement) {
+            timerElement.innerText = "NO TIMER";
+            timerElement.classList.remove('blinking');
+            timerElement.classList.add('no-timer');
+          }
+          saveTimer(id);
+          renderTimers();
+        }
+      }
+
+      function renderTimers() {
+        const timerList = document.getElementById('timerList');
+        timerList.innerHTML = '';
+
+        const sortedTimers = timerData.slice().sort((a, b) => {
+          const timeA = getRemainingTime(a.id);
+          const timeB = getRemainingTime(b.id);
+          if (timeA === null && timeB === null) return 0;
+          if (timeA === null) return 1;
+          if (timeB === null) return -1;
+          return timeA - timeB;
+        });
+
+        sortedTimers.forEach(timer => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <p>${timer.id}: <a href="${timer.url}" target="_blank">${timer.name}</a></p>
+            Enter hours: <input type="text" id="input${timer.id}" placeholder="0">
+            Timer: <span id="timer${timer.id}">${timers[timer.id] && timers[timer.id].completed ? "00:00:00" : "NO TIMER"}</span>
+            <button onclick="startTimer(${timer.id})">Start</button>
+            <button onclick="pauseTimer(${timer.id})">Pause</button>
+            <button onclick="stopTimer(${timer.id})">Stop</button>
+          `;
+          timerList.appendChild(li);
+          updateDisplay(timer.id);
+        });
+      }
+
+      function openCompletedTimers() {
+        const links = Object.fromEntries(timerData.map(t => [t.id, t.url]));
+        const urlsToOpen = [];
+
+        for (let id in links) {
+          const timerElement = document.getElementById(`timer${id}`);
+          const isBlinking = timerElement && timerElement.classList.contains('blinking');
+          if (isBlinking) {
+            urlsToOpen.push(links[id]);
+          }
+        }
+
+        urlsToOpen.forEach((url, index) => {
+          setTimeout(() => {
+            window.open(url, '_blank');
+          }, index * 100);
+        });
+      }
+
+      document.getElementById('openCompleted').addEventListener('click', openCompletedTimers);
+      window.onload = loadTimers;
+    </script>
+  </body>
+</html>
