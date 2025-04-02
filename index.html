@@ -107,7 +107,6 @@
     <h1>Jon's Sweeps Countdown Timers</h1>
     <ul id="timerList"></ul>
     <script>
-      // Replace this with your Firebase config from the Firebase Console
       const firebaseConfig = {
         apiKey: "AIzaSyBZWgezBDSH8djT1wXB0QeyGlYwkNe--9c",
         authDomain: "timersync-f9c04.firebaseapp.com",
@@ -118,7 +117,6 @@
         appId: "1:152212557916:web:acbf91e5f82e961428d699"
       };
 
-      // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
       const db = firebase.database();
       const timersRef = db.ref('timers');
@@ -189,9 +187,10 @@
       let timers = {};
 
       function loadTimers() {
+        console.log('Setting up Firebase listener...');
         timersRef.on('value', (snapshot) => {
+          console.log('Firebase data received:', snapshot.val());
           const newTimers = snapshot.val() || {};
-          // Clear existing intervals to avoid duplicates
           for (let id in timers) {
             if (timers[id].interval) clearInterval(timers[id].interval);
           }
@@ -205,9 +204,12 @@
           }
           renderTimers();
         });
+        // Call renderTimers immediately to show the list
+        renderTimers();
       }
 
       function saveTimer(id) {
+        console.log('Saving timer:', id, timers[id]);
         if (timers[id]) {
           timersRef.child(id).set({
             duration: timers[id].duration,
@@ -334,7 +336,12 @@
       }
 
       function renderTimers() {
+        console.log('Rendering timers, current state:', timers);
         const timerList = document.getElementById('timerList');
+        if (!timerList) {
+          console.error('timerList element not found!');
+          return;
+        }
         timerList.innerHTML = '';
 
         const sortedTimers = timerData.slice().sort((a, b) => {
