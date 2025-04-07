@@ -73,7 +73,7 @@
         padding: 5px;
         background-color: #383838;
         border: 1px solid #555;
-        color: #ffffff; /* Default color for active timers */
+        color: #ffffff;
       }
       button {
         padding: 5px 10px;
@@ -89,11 +89,11 @@
       }
       .blinking {
         font-weight: bold;
-        color: #ff5252; /* Red for completed timers */
+        color: #ff5252;
         animation: blink 1s infinite;
       }
       .no-timer {
-        color: #FFFF00; /* Solid yellow for "NO TIMER" */
+        color: #FFFF00;
       }
       @keyframes blink {
         0% { opacity: 1; }
@@ -199,7 +199,7 @@
           }
           renderTimers();
         });
-        renderTimers(); // Initial render
+        renderTimers();
       }
 
       function saveTimer(id) {
@@ -264,6 +264,14 @@
         }
       }
 
+      function setTimerDuration(id, hours) {
+        const input = document.getElementById(`input${id}`);
+        if (input) {
+          input.value = hours;
+          startTimer(id);
+        }
+      }
+
       function startTimer(id, fromSaved = false) {
         let duration;
         if (!fromSaved) {
@@ -293,14 +301,14 @@
           if (remaining <= 0) {
             clearInterval(timers[id].interval);
             updateDisplay(id);
-            renderTimers(); // Re-sort after a timer hits zero
+            renderTimers();
           } else {
             document.getElementById(`timer${id}`).innerText = formatTime(remaining);
           }
         }, 1000);
 
         saveTimer(id);
-        renderTimers(); // Re-sort after starting a timer
+        renderTimers();
       }
 
       function pauseTimer(id) {
@@ -310,7 +318,7 @@
           timers[id].paused = true;
           timers[id].pauseTime = Date.now();
           saveTimer(id);
-          renderTimers(); // Re-sort after pausing
+          renderTimers();
         }
       }
 
@@ -326,7 +334,7 @@
             timerElement.classList.add('no-timer');
           }
           saveTimer(id);
-          renderTimers(); // Re-sort after stopping
+          renderTimers();
         }
       }
 
@@ -339,20 +347,23 @@
         }
         timerList.innerHTML = '';
 
-        // Sort timers by remaining time, handling null for inactive timers
         const sortedTimers = timerData.slice().sort((a, b) => {
           const timeA = getRemainingTime(a.id);
           const timeB = getRemainingTime(b.id);
           if (timeA === null && timeB === null) return 0;
           if (timeA === null) return 1;
           if (timeB === null) return -1;
-          return timeA - timeB; // Ascending order (shortest time first)
+          return timeA - timeB;
         });
 
         sortedTimers.forEach(timer => {
           const li = document.createElement('li');
           li.innerHTML = `
             <p>${timer.id}: <a href="${timer.url}" target="_blank">${timer.name}</a></p>
+            <button onclick="setTimerDuration(${timer.id}, 24)">24h</button>
+            <button onclick="setTimerDuration(${timer.id}, 12)">12h</button>
+            <button onclick="setTimerDuration(${timer.id}, 6)">6h</button>
+            <button onclick="setTimerDuration(${timer.id}, 4)">4h</button>
             Enter hours: <input type="text" id="input${timer.id}" placeholder="0">
             Timer: <span id="timer${timer.id}">${timers[timer.id] && timers[timer.id].completed ? "00:00:00" : "NO TIMER"}</span>
             <button onclick="startTimer(${timer.id})">Start</button>
@@ -360,7 +371,7 @@
             <button onclick="stopTimer(${timer.id})">Stop</button>
           `;
           timerList.appendChild(li);
-          updateDisplay(timer.id); // Update display after rendering
+          updateDisplay(timer.id);
         });
       }
 
