@@ -451,7 +451,7 @@
             <button onclick="setTimerDuration(${timer.id}, 6)">6h</button>
             <button onclick="setTimerDuration(${timer.id}, 4)">4h</button>
             Enter hours: <input type="text" id="input${timer.id}" placeholder="0">
-            Timer: <span id="timer${timer.id}">${timers[timer.id] && timers[id].completed ? "00:00:00" : "NO TIMER"}</span>
+            Timer: <span id="timer${timer.id}">${timers[timer.id] && timers[timer.id].completed ? "00:00:00" : "NO TIMER"}</span>
             <button onclick="startTimer(${timer.id})">Start</button>
             <button onclick="pauseTimer(${timer.id})">Pause</button>
             <button onclick="stopTimer(${timer.id})">Stop</button>
